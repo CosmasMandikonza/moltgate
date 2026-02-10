@@ -1,0 +1,22 @@
+{
+  "name": "moltgate",
+  "version": "0.0.0",
+  "private": true,
+  "description": "MoltGate – x402 payment gateway primitive for the Stacks ecosystem",
+  "scripts": {
+    "build": "pnpm -r --filter './packages/*' build && pnpm -r --filter './apps/*' build",
+    "dev": "pnpm -r --parallel dev",
+    "dev:gateway": "pnpm --filter @moltgate/gateway dev",
+    "dev:upstream": "pnpm --filter @moltgate/upstream dev",
+    "dev:demo": "pnpm --filter @moltgate/demo dev",
+    "demo": "pnpm --filter @moltgate/demo-cli demo",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint",
+    "clean": "pnpm -r clean",
+    "typecheck": "pnpm -r --parallel typecheck"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  }
+}
