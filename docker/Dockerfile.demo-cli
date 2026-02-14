@@ -1,0 +1,21 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
+
+COPY packages/policy ./packages/policy
+COPY packages/schema ./packages/schema
+COPY packages/autopay ./packages/autopay
+COPY apps/demo-cli ./apps/demo-cli
+
+RUN pnpm install --frozen-lockfile
+
+# Build workspace deps
+RUN pnpm -C packages/policy build
+RUN pnpm -C packages/autopay build
+
+EXPOSE 0
+CMD ["pnpm", "-C", "apps/demo-cli", "demo"]

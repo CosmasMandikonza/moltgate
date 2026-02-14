@@ -1,0 +1,30 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
+
+# Copy workspace packages that demo depends on
+COPY packages/policy ./packages/policy
+COPY packages/schema ./packages/schema
+COPY packages/autopay ./packages/autopay
+
+# Copy demo app
+COPY apps/demo ./apps/demo
+
+RUN pnpm install --frozen-lockfile
+
+# Build workspace deps first
+RUN pnpm -C packages/policy build
+RUN pnpm -C packages/autopay build
+
+# Build Next.js (no hardcoded URLs — gateway is proxied at runtime via rewrites)
+RUN pnpm -C apps/demo build
+
+# GATEWAY_URL is read at runtime by Next.js rewrites — set it in docker-compose
+ENV GATEWAY_URL=http://localhost:3000
+
+EXPOSE 3001
+CMD ["pnpm", "-C", "apps/demo", "start"]

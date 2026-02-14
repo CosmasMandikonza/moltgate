@@ -1,0 +1,65 @@
+# docker-compose.yml — MoltGate local development stack
+#
+# Usage:
+#   docker compose up --build          # starts gateway + upstream + demo UI
+#   docker compose run --rm demo-cli   # runs the CLI buyer trace
+#
+# Mock mode (default) — no real tokens needed.
+# Real testnet:
+#   MOCK_PAYMENTS=false PAY_TO=ST... docker compose up --build
+
+services:
+  # ── Upstream API (zero x402 knowledge) ──────────────────────────────
+  upstream:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.upstream
+    ports:
+      - "4000:4000"
+    environment:
+      PORT: "4000"
+
+  # ── x402 Payment Gateway ────────────────────────────────────────────
+  gateway:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.gateway
+    ports:
+      - "${GATEWAY_PORT:-3002}:3000"
+    environment:
+      PORT: "3000"
+      NETWORK: "${NETWORK:-stacks:2147483648}"
+      FACILITATOR_URL: "${FACILITATOR_URL:-https://facilitator.stacksx402.com}"
+      PAY_TO: "${PAY_TO:-ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM}"
+      AMOUNT_MICROSTX: "${AMOUNT_MICROSTX:-100000}"
+      MOCK_PAYMENTS: "${MOCK_PAYMENTS:-true}"
+      UPSTREAM_URL: "http://upstream:4000"
+      PUBLIC_BASE_URL: "${PUBLIC_BASE_URL:-http://localhost:${GATEWAY_PORT:-3002}}"
+    depends_on:
+      - upstream
+
+  # ── Next.js Demo UI ─────────────────────────────────────────────────
+  demo:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.demo
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: "3001"
+      GATEWAY_URL: "http://gateway:3000"
+    depends_on:
+      - gateway
+
+  # ── CLI Buyer Demo (run manually) ───────────────────────────────────
+  # Usage: docker compose run --rm demo-cli
+  demo-cli:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.demo-cli
+    environment:
+      GATEWAY_URL: "http://gateway:3000"
+    depends_on:
+      - gateway
+    profiles:
+      - cli

@@ -1,0 +1,29 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Copy workspace root files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
+
+# Copy all packages (gateway depends on policy, schema, autopay)
+COPY packages/policy ./packages/policy
+COPY packages/schema ./packages/schema
+COPY packages/autopay ./packages/autopay
+
+# Copy gateway app
+COPY apps/gateway ./apps/gateway
+
+# Install all workspace deps
+RUN pnpm install --frozen-lockfile
+
+# Build packages in dependency order, then gateway
+RUN pnpm -C packages/policy build
+RUN pnpm -C packages/schema build
+RUN pnpm -C packages/autopay build
+RUN pnpm -C apps/gateway build
+
+EXPOSE 3000
+CMD ["pnpm", "-C", "apps/gateway", "start"]
