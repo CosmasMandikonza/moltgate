@@ -1,0 +1,32 @@
+{
+  "name": "@moltgate/demo",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "vercel-build": "cd ../.. && pnpm -C packages/policy build && pnpm -C packages/autopay build && pnpm -C apps/demo build",
+    "start": "next start -p 3001",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .next"
+  },
+  "dependencies": {
+    "@moltgate/autopay": "workspace:*",
+    "@moltgate/policy": "workspace:*",
+    "@stacks/connect": "^8.2.4",
+    "@stacks/network": "^7.3.1",
+    "@stacks/transactions": "^7.3.1",
+    "@tailwindcss/postcss": "^4.1.0",
+    "framer-motion": "^11.15.0",
+    "next": "^15.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.7.0"
+  }
+}
