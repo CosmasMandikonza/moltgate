@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const GW = "/api/gateway";
+const DIRECT_GW = process.env.NEXT_PUBLIC_GATEWAY_URL || "";
 
 interface Field { type: string; description?: string; required?: boolean; example?: unknown }
 interface Schema { method: string; input: { query?: Record<string, Field>; body?: Record<string, Field> }; output: Record<string, Field> }
