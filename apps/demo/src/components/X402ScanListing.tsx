@@ -146,7 +146,15 @@ export default function X402ScanListing() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${GW}/.well-known/x402`);
+      let res = null;
+      if (DIRECT_GW) {
+        try {
+          res = await fetch(`${DIRECT_GW}/.well-known/x402`, { signal: AbortSignal.timeout(15000) });
+        } catch { res = null; }
+      }
+      if (!res || !res.ok) {
+        res = await fetch(`${GW}/.well-known/x402`);
+      }
       if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
       setDoc(await res.json());
     } catch (e) { setError(String(e)); }
